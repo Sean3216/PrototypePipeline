@@ -141,6 +141,8 @@ def main():
                 ytestrescaled = pd.Series(ytestrescaled.flatten())
             else:
                 ytestrescaled = test[target]
+        else:
+            ytestrescaled = test[target]
         metrics = evaluate(ytestrescaled, y_pred, init_conf['tasktype']) #save metrics for now in case we need it later
         model.save_model()
 
