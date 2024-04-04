@@ -33,6 +33,9 @@ init_conf = config['init_config']
 data_conf = config['data_config']
 model_conf = config['model_config']
 
+#set a variable that captures the name of the target column
+target = data_conf['target']
+
 # load data
 rawtrain = load_data(data_conf['traindir'])
 if data_conf['testdir'] is not None:
@@ -77,7 +80,7 @@ def main():
         val_date,
         test_date
     ) = preprocessing(rawtrain, 
-                      data_conf['target'],
+                      target,
                       init_conf['tasktype'],
                       dropped_col=data_conf['drop_cols'],
                       train_val_test_ratio=data_conf['train_val_test_ratio'],
@@ -114,19 +117,11 @@ def main():
             test_date = test_date.reset_index(drop=True)
             print('Test date shape: ', test_date.shape)
             print('Test date indexes: ', test_date.index)
-        #set a variable that captures the name of the target column
-        target = data_conf['target']
 
     ###Select and train using model
     ##XGBoost
+    print('Check train columns: ', train.columns)
     if init_conf['model'] == 'xgboost':
-        #need to drop date column if it exists because XGBoost cannot handle datetime
-        if data_conf['date_col'] is not None:
-            train = train.drop(data_conf['date_col'], axis=1)
-            val = val.drop(data_conf['date_col'], axis=1)
-            if test is not None:
-                test = test.drop(data_conf['date_col'], axis=1)
-        
         #initialize model
         model = XGBoostModel(tasktype = init_conf['tasktype'],
                              params = model_conf['hyperparameter_defaults'],

@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import torch
 import yaml
 from hyperopt import hp
@@ -9,9 +10,17 @@ def label_checking(data, label):
     if label not in data.columns or label is None:
         raise ValueError('Label not found in data columns. Please provide the label column name')
     
-def inverse_scale_target(y_pred, scaler_y):
-    y_pred = pd.Series(scaler_y.inverse_transform(y_pred.reshape(-1, 1)).flatten())
-    return y_pred
+def inverse_scale_target(y, scaler_y):
+    #check if y is a pandas series
+    if isinstance(y, pd.Series):
+        y = pd.Series(scaler_y.inverse_transform(y.values.reshape(-1, 1)).flatten())
+    #check if y is torch tensor
+    elif isinstance(y, torch.Tensor):
+        y = pd.Series(scaler_y.inverse_transform(y.detach().numpy().reshape(-1, 1)).flatten())
+    #check if y is array
+    elif isinstance(y, np.ndarray):
+        y = pd.Series(scaler_y.inverse_transform(y.reshape(-1, 1)).flatten())
+    return y
     
 def check_and_sort_ts(data, date_col = None):
     #check if the data index is datetime

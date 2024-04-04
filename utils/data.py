@@ -106,7 +106,7 @@ def preprocessing(
             return_date = True
         else:
             return_date = False
-
+        
         (
             train_loader,
             val_loader,
@@ -123,6 +123,8 @@ def preprocessing(
                                             datename= date_col, 
                                             return_df = returnasdf,
                                             return_date = return_date)
+        if tasktype == 1:
+            scaler_y = None
         return train_loader, val_loader, test_loader, scaler_y, train_date, val_date, test_date
     else:
         train_index = int(len(rawdata) * train_val_test_ratio[0])
