@@ -1,0 +1,8 @@
+Data/*
+*.json
+*.docx
+*.txt
+*.ipynb
+*.ipynb_checkpoints
+CloudAI Reference/*
+PLots/*

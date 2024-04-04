@@ -1,0 +1,52 @@
+# For any empty/absent information, use null. Do not use "" for empty fields.
+init_config:
+  tasktype: 'Classification'
+  model: 'xgboost' # Available models = ['xgboost','prophet']
+  modelpath: 'xgboost.json'
+
+data_config:
+  traindir: 'Data/load_full_data_purchase.csv'
+  testdir: null #if there is no test data provided, use null
+  target: 'is_purchaser'
+  drop_cols: ['user_id'] #leave empty list if there are no columns to be dropped
+  train_val_test_ratio: [0.8, 0.1]
+  fw_steps: 0 #how much shift y target to do forward forecasting.
+  n_hist: 1 #how many historical data to use. If 1 then only the current data is used. If 2, then t-1.
+  shuffle: True #Whether to shuffle train data or not. Do not shuffle if it's time series data!
+  apply_scaler: True #Whether to apply standard scaler or not
+  return_as_df: True #if you want to return the data as a dataframe, set this to True
+  date_col: null #if there is no date column, use null
+  preprocessed: False
+
+model_config:
+  cuda: True #if you want to use GPU, set this to True 
+  load_model: False #if you want to load a pre-trained model, set this to True
+  hyperparameter_defaults: #if there are any hyperparameters that are to be used as default. If there are no hyperparameters to be set, it's okay to omit this section.
+    n_estimators: 100
+    max_depth: 5
+    learning_rate: 0.1
+    random_state: 42
+    objective: 'binary:logistic'
+    eval_metric: 'auc'
+    booster: 'gbtree'
+  hyperparameter_tuning: #if not doing hyperparameter tuning, just don't fill this section. Uses Bayesian Optimization for tuning
+    #future work: allow another hyperparameter tuning method
+    #some static options are intended so user can tweak them
+    - name: 'n_estimators'
+      type: 'randint'
+      bounds: [100, 300]
+    - name: 'max_depth'
+      type: 'randint'
+      bounds: [10, 20]
+    - name: 'learning_rate'
+      type: 'uniform'
+      bounds: [0.001, 0.1]
+    - name: 'random_state'
+      type: 'choice'
+      values: [42]
+    - name: 'eval_metric'
+      type: 'choice'
+      values: ['auc']
+    - name: 'booster'
+      type: 'choice'
+      values: ['gbtree', 'dart']
