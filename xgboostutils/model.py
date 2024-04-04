@@ -43,7 +43,8 @@ class XGBoostModel():
         self.model.fit(X_train, y_train)
         print('Model trained successfully!')
     
-    def predict(self, X_test, threshold = None): #in case we want to tweak the threshold of the classification model
+    def predict(self, X_test, type = 'test', threshold = None): #in case we want to tweak the threshold of the classification model
+        print(f'Predicting on {type} data...')
         if self.device == 'cuda':
             X_test = cp.array(X_test)
         if threshold is not None:

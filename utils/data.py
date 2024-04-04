@@ -111,11 +111,11 @@ def preprocessing(
             train_loader,
             val_loader,
             test_loader,
-            input_size,
-            out,
-            scaler_x,
+            _,
+            _,
+            _,
             scaler_y,
-            label_mapping,
+            _,
             train_date,
             val_date,
             test_date
@@ -123,7 +123,7 @@ def preprocessing(
                                             datename= date_col, 
                                             return_df = returnasdf,
                                             return_date = return_date)
-        return train_loader, val_loader, test_loader, input_size, out, scaler_x, scaler_y, label_mapping, train_date, val_date, test_date
+        return train_loader, val_loader, test_loader, scaler_y, train_date, val_date, test_date
     else:
         train_index = int(len(rawdata) * train_val_test_ratio[0])
         val_index = train_index + int(len(rawdata) * train_val_test_ratio[1])
@@ -150,4 +150,4 @@ def preprocessing(
             val_date = None
             test_date = None
         
-        return train, val, test, None, None, None, None, None, train_date, val_date, test_date
+        return train, val, test, None, train_date, val_date, test_date

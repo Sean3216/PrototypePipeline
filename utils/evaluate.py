@@ -1,9 +1,11 @@
+import pandas as pd
 import numpy as np
 from sklearn.metrics import (
     mean_squared_error, mean_absolute_error, r2_score,
     accuracy_score, f1_score, precision_score, recall_score,
     classification_report, mean_absolute_percentage_error
 )
+from utils.utilitycode import inverse_scale_target
 
 def evaluate(y_true, y_pred, tasktype, verbose = 1):
     metrics = {}
@@ -33,5 +35,33 @@ def evaluate(y_true, y_pred, tasktype, verbose = 1):
             print('Mean Absolute Error: ', metrics['mae'])
             print('Mean Absolute Percentage Error: ', metrics['mape'])
             print('R2 Score: ', metrics['r2'])
+    return metrics
+
+def predict_and_evaluate(model, data, target, scaler_y = None, type = 'train', verbose = 1):
+    y_pred = model.predict(data.drop(target, axis=1), type = type)
+    if type.lower() == 'train':
+        print('No test data. Predicting on train data...')
+        print('Obtaining result on train data...')
+        if scaler_y is not None:
+            ytrainrescaled = inverse_scale_target(data[target], scaler_y)
+            metrics = evaluate(ytrainrescaled, y_pred, model.tasktype, verbose = verbose)
+        else:
+            metrics = evaluate(data['target'], y_pred, model.tasktype, verbose = verbose)
+    elif type.lower() == 'val':
+        print('Obtaining result on validation data...')
+        if scaler_y is not None:
+            yvalrescaled = inverse_scale_target(data[target], scaler_y)
+            metrics = evaluate(yvalrescaled, y_pred, model.tasktype, verbose = verbose)
+        else:
+            metrics = evaluate(data['target'], y_pred, model.tasktype, verbose = verbose)
+    elif type.lower() == 'test':
+        print('Obtaining result on test data...')
+        if scaler_y is not None:
+            ytestrescaled = inverse_scale_target(data[target], scaler_y)
+            metrics = evaluate(ytestrescaled, y_pred, model.tasktype, verbose = verbose)
+        else:
+            metrics = evaluate(data['target'], y_pred, model.tasktype, verbose = verbose)
+    else:
+        print('Invalid type. Please choose between train, val, or test.')
     return metrics
         

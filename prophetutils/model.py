@@ -68,6 +68,7 @@ class ProphetModel():
         print('Model trained successfully!')
     
     def predict(self, X_test, type = 'test'): #in case we want to tweak the threshold of the classification model
+        print(f'Predicting on {type} data...')
         #use test date for prophet
         if type.lower() == 'train':
             X_test['ds'] = pd.to_datetime(self.train_date)

@@ -9,6 +9,10 @@ def label_checking(data, label):
     if label not in data.columns or label is None:
         raise ValueError('Label not found in data columns. Please provide the label column name')
     
+def inverse_scale_target(y_pred, scaler_y):
+    y_pred = pd.Series(scaler_y.inverse_transform(y_pred.reshape(-1, 1)).flatten())
+    return y_pred
+    
 def check_and_sort_ts(data, date_col = None):
     #check if the data index is datetime
     if isinstance(data.index, pd.DatetimeIndex):
