@@ -114,22 +114,20 @@ def plot_regression_result(y_true_train, y_pred_train,
         print(metricstrain)
         print(metricsval)
         print(metricstest)
-        print(f"Metrics Train| MSE: {metricstrain['mse']}, RMSE: {metricstrain['rmse']}, MAE: {metricstrain['mae']}, R^2: {metricstrain['r2']}, MAPE: {metricstrain['mape']}")
-        print(f"Metrics Validation| MSE: {metricsval['mse']}, RMSE: {metricsval['rmse']}, MAE: {metricsval['mae']}, R^2: {metricsval['r2']}, MAPE: {metricsval['mape']}")
-        print(f"Metrics Test| MSE: {metricstest['mse']}, RMSE: {metricstest['rmse']}, MAE: {metricstest['mae']}, R^2: {metricstest['r2']}, MAPE: {metricstest['mape']}")
-        
+        trainmetricshow = f"Metrics Train| MSE: {metricstrain['mse']}, RMSE: {metricstrain['rmse']}, MAE: {metricstrain['mae']}, R^2: {metricstrain['r2']}, MAPE: {metricstrain['mape']}"
+        valmetricshow = f"Metrics Validation| MSE: {metricsval['mse']}, RMSE: {metricsval['rmse']}, MAE: {metricsval['mae']}, R^2: {metricsval['r2']}, MAPE: {metricsval['mape']}"
+        testmetricshow = f"Metrics Test| MSE: {metricstest['mse']}, RMSE: {metricstest['rmse']}, MAE: {metricstest['mae']}, R^2: {metricstest['r2']}, MAPE: {metricstest['mape']}"
+    
         #plot a line plot for all the train, val, and test
         plt.figure(figsize = (30, 10))
-        plt.plot(y_true.index,y_true, label = 'True')
-        plt.plot(y_pred.index, y_pred, label = 'Predicted')
+        plt.plot(y_true, label = 'True')
+        plt.plot(y_pred, label = 'Predicted')
         #plot axvline with "--" linestyle for validation and different linestyle for test
         plt.axvline(x = val_start_index, color = 'r', linestyle = '--', label = 'Validation Start')
         plt.axvline(x = test_start_index, color = 'g', linestyle = ':', label = 'Test Start')
         plt.legend()
         plt.title(
-            f'{modelname} Prediction Result\nMetrics Train| MSE: {metricstrain['mse']}, RMSE: {metricstrain["rmse"]}, MAE: {metricstrain["mae"]}, R^2: {metricstrain["r2"]}, MAPE: {metricstrain["mape"]}\n'+
-            f'Metrics Validation| MSE: {metricsval["mse"]}, RMSE: {metricsval["rmse"]}, MAE: {metricsval["mae"]}, R^2: {metricsval["r2"]}, MAPE: {metricsval["mape"]}\n'+
-            f'Metrics Test| MSE: {metricstest["mse"]}, RMSE: {metricstest["rmse"]}, MAE: {metricstest["mae"]}, R^2: {metricstest["r2"]}, MAPE: {metricstest["mape"]}'
+            f'{modelname} Prediction Result\n'+ trainmetricshow +'\n'+ valmetricshow +'\n'+ testmetricshow
             )
         plt.xlabel('Index')
         plt.ylabel('Value')
@@ -140,11 +138,11 @@ def plot_regression_result(y_true_train, y_pred_train,
 
         #plot only the test data
         plt.figure(figsize = (30, 10))
-        plt.plot(y_true_test.index, y_true_test, label = 'True')
-        plt.plot(y_pred_test.index, y_pred_test, label = 'Predicted')
+        plt.plot(y_true_test, label = 'True')
+        plt.plot(y_pred_test, label = 'Predicted')
         plt.legend()
         plt.title(
-            f'{modelname} Prediction Result\nMetrics Test| MSE: {metricstest["mse"]}, RMSE: {metricstest["rmse"]}, MAE: {metricstest["mae"]}, R^2: {metricstest["r2"]}, MAPE: {metricstest["mape"]}'
+            f'{modelname} Prediction Result\n'+ testmetricshow
         )
         plt.xlabel('Index')
         plt.ylabel('Value')
@@ -155,11 +153,11 @@ def plot_regression_result(y_true_train, y_pred_train,
 
         #plot the first 500 test data
         plt.figure(figsize = (30, 10))
-        plt.plot(y_true_test[:500].index, y_true_test[:500], label = 'True')
-        plt.plot(y_pred_test[:500].index, y_pred_test[:500], label = 'Predicted')
+        plt.plot(y_true_test[:500].values, label = 'True')
+        plt.plot(y_pred_test[:500].values, label = 'Predicted')
         plt.legend()
         plt.title(
-            f'{modelname} Prediction Result\nMetrics Test| MSE: {metricstest["mse"]}, RMSE: {metricstest["rmse"]}, MAE: {metricstest["mae"]}, R^2: {metricstest["r2"]}, MAPE: {metricstest["mape"]}'
+            f'{modelname} Prediction Result\n'+ testmetricshow
         )
         plt.xlabel('Index')
         plt.ylabel('Value')
@@ -188,14 +186,13 @@ def plot_regression_result(y_true_train, y_pred_train,
 
         #plot a line plot for all the train, val, and test
         plt.figure(figsize = (20, 10))
-        plt.plot(y_true.index,y_true, label = 'True')
-        plt.plot(y_pred.index, y_pred, label = 'Predicted')
+        plt.plot(y_true, label = 'True')
+        plt.plot(y_pred, label = 'Predicted')
         #plot axvline with "--" linestyle for validation and different linestyle for test
         plt.axvline(x = val_start_index, color = 'r', linestyle = '--', label = 'Validation Start')
         plt.legend()
         plt.title(
-            f'{modelname} Prediction Result\nMetrics Train| MSE: {metricstrain['mse']}, RMSE: {metricstrain["rmse"]}, MAE: {metricstrain["mae"]}, R^2: {metricstrain["r2"]}, MAPE: {metricstrain["mape"]}\n'+
-            f'Metrics Validation| MSE: {metricsval["mse"]}, RMSE: {metricsval["rmse"]}, MAE: {metricsval["mae"]}, R^2: {metricsval["r2"]}, MAPE: {metricsval["mape"]}'
+            f'{modelname} Prediction Result\n'+ trainmetricshow +'\n'+ valmetricshow
             )
         plt.xlabel('Index')
         plt.ylabel('Value')

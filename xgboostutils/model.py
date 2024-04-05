@@ -3,7 +3,7 @@ import numpy as np
 import cupy as cp
 import xgboost as xgb
 from hyperopt import fmin, tpe, Trials, space_eval
-from sklearn.metrics import accuracy_score, root_mean_squared_error
+from sklearn.metrics import accuracy_score, mean_squared_error
 from utils.utilitycode import convert_to_hp_space
 
 class XGBoostModel():
@@ -89,7 +89,7 @@ class XGBoostModel():
                     ypredrescaled = pd.Series(ypredrescaled.flatten())
                 else:
                     ypredrescaled = y_pred
-                score = root_mean_squared_error(y_val, ypredrescaled)
+                score = np.sqrt(mean_squared_error(y_val, ypredrescaled))
             return {'loss': score, 'status': 'ok'}
 
         trials = Trials()

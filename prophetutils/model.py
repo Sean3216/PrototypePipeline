@@ -5,7 +5,7 @@ import warnings
 from prophet import Prophet
 from prophet.serialize import model_to_json, model_from_json
 from hyperopt import fmin, tpe, Trials, space_eval
-from sklearn.metrics import accuracy_score, root_mean_squared_error
+from sklearn.metrics import accuracy_score, mean_squared_error
 from utils.utilitycode import convert_to_hp_space
 
 logging.getLogger('prophet').setLevel(logging.WARNING)
@@ -132,7 +132,7 @@ class ProphetModel():
             else:
                 y_predscaled = y_pred['yhat']
                 y_valscaled = y_val
-            score = root_mean_squared_error(y_valscaled, y_predscaled)
+            score = np.sqrt(mean_squared_error(y_valscaled, y_predscaled))
             return {'loss': score, 'status': 'ok'}
 
         trials = Trials()
