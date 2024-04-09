@@ -13,7 +13,6 @@ logging.getLogger('cmdstanpy').disabled = True
 warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 
 class ProphetModel():
-    #@Todo: Add hyperparameter tuning capability
     def __init__(self,
                  tasktype,
                  params = None, 

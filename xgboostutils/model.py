@@ -7,7 +7,6 @@ from sklearn.metrics import accuracy_score, mean_squared_error
 from utils.utilitycode import convert_to_hp_space
 
 class XGBoostModel():
-    #@Todo: Add hyperparameter tuning capability
     def __init__(self,
                  tasktype,
                  params = None, 

@@ -1,5 +1,6 @@
 from xgboostutils.model import XGBoostModel
 from prophetutils.model import ProphetModel
+from deeparutils.model import DeepARModel
 
 from utils.data import load_data, preprocessing
 from utils.evaluate import evaluate, predict_and_evaluate
@@ -14,7 +15,7 @@ import os
 #define availablemodels
 #Trying to add DeepAR model
 classification_mod = ['xgboost']
-regression_mod = ['xgboost','prophet'] #add DeepAR here
+regression_mod = ['xgboost','prophet', 'deepar'] #add DeepAR here
 
 #parse arguments
 parser = argparse.ArgumentParser(description='Train and evaluate model')
@@ -51,11 +52,11 @@ def main():
     ###Check chosen model
     if init_conf['tasktype'].lower() == 'classification':
         init_conf['tasktype'] = 1 #classification
-        if init_conf['model'] not in classification_mod:
+        if init_conf['model'].lower() not in classification_mod:
             raise ValueError('Model not available for classification. Please choose from: {}'.format(classification_mod))
     elif init_conf['tasktype'].lower() == 'regression':
         init_conf['tasktype'] = 0 #regression
-        if init_conf['model'] not in regression_mod:
+        if init_conf['model'].lower() not in regression_mod:
             raise ValueError('Model not available for regression. Please choose from: {}'.format(regression_mod))
     else:
         raise ValueError('Task type not recognized. Please choose either classification or regression')
@@ -66,9 +67,9 @@ def main():
         print("Setting data to be in dataframe format...")
         return_as_df = True
     if init_conf['model'].lower() == 'deepar':
-        print("Model chosen requires the input to be in dataloader format.")
-        print("Setting data to be in dataloader format...")
-        return_as_df = False
+        print("Package used for this model requires the input to be in dataframe format.")
+        print("Setting data to be in dataframe format...")
+        return_as_df = True
 
     ###Preprocess the data
     (
@@ -120,8 +121,7 @@ def main():
 
     ###Select and train using model
     ##XGBoost
-    print('Check train columns: ', train.columns)
-    if init_conf['model'] == 'xgboost':
+    if init_conf['model'].lower() == 'xgboost':
         #initialize model
         model = XGBoostModel(tasktype = init_conf['tasktype'],
                              params = model_conf['hyperparameter_defaults'],
@@ -145,7 +145,7 @@ def main():
         model.save_model()
 
     ##Prophet
-    elif init_conf['model'] == 'prophet':
+    elif init_conf['model'].lower() == 'prophet':
         #check if date column is given
         if data_conf['date_col'] is None:
             print('Date column is needed for Prophet model! No date column found.')
@@ -174,17 +174,55 @@ def main():
             metrics = predict_and_evaluate(model, train, target, scaler_y, type = 'train')
         model.save_model()
     
+    ##DeepAR
+    elif init_conf['model'].lower() == 'deepar':
+        #initialize model
+        model = DeepARModel(tasktype = init_conf['tasktype'],
+                            params = model_conf['hyperparameter_defaults'],
+                            model_path = init_conf['modelpath'],
+                            load_model = model_conf['load_model'],
+                            cuda = model_conf['cuda'], scalertarget = scaler_y)
+        model.set_additional_param(data_conf['n_hist'],
+                                   data_conf['fw_steps']+1,
+                                   model_conf['batch_size'],
+                                   data_conf['num_workers'],
+                                   model_conf['epochs'])
+        model.reformat_data(train, val, test, target)
+
+        #check if the hyperparameter tuning field is filled
+        if model_conf['hyperparameter_tuning'] is not None:
+            print('contents of hyperparameter tuning: ', model_conf['hyperparameter_tuning'])
+            model.hyperparameter_tuning(model_conf['hyperparameter_tuning'])
+        
+        #train the model
+        model.train()
+        if test is not None:
+            metrics = predict_and_evaluate(model, test, target, scaler_y, type = 'test', NN = True)
+        else:
+            metrics = predict_and_evaluate(model, train, target, scaler_y, type = 'train', NN = True)
+        model.save_model()
+    
     ###Plotting the regression result for regression case
     if init_conf['tasktype'] == 0:
         #obtain metrics for train, val, and test data
         if test is not None:
-            train_metrics = predict_and_evaluate(model, train, target, scaler_y, type = 'train', verbose=0)
-            val_metrics = predict_and_evaluate(model, val, target, scaler_y, type = 'val', verbose=0)
-            test_metrics = copy.deepcopy(metrics)
+            if init_conf['model'].lower() in ['xgboost', 'prophet']:
+                train_metrics = predict_and_evaluate(model, train, target, scaler_y, type = 'train', verbose=0)
+                val_metrics = predict_and_evaluate(model, val, target, scaler_y, type = 'val', verbose=0)
+                test_metrics = copy.deepcopy(metrics)
+            elif init_conf['model'].lower() == 'deepar':
+                train_metrics = predict_and_evaluate(model, train.iloc[data_conf['n_hist']:], target, scaler_y, type = 'train', verbose=0, NN = True)
+                val_metrics = predict_and_evaluate(model, val, target, scaler_y, type = 'val', verbose=0, NN = True)
+                test_metrics = copy.deepcopy(metrics)
         else:
-            train_metrics = copy.deepcopy(metrics)
-            val_metrics = predict_and_evaluate(val[target], model.predict(val.drop(target, axis=1), type = 'val'), init_conf['tasktype'], verbose=0)
-            test_metrics = None
+            if init_conf['model'].lower() in ['xgboost', 'prophet']:
+                train_metrics = copy.deepcopy(metrics)
+                val_metrics = predict_and_evaluate(val[target], model.predict(val.drop(target, axis=1), type = 'val'), init_conf['tasktype'], verbose=0)
+                test_metrics = None
+            elif init_conf['model'].lower() == 'deepar':
+                train_metrics = copy.deepcopy(metrics)
+                val_metrics = predict_and_evaluate(model, val, target, scaler_y, type = 'val', verbose=0, NN = True)
+                test_metrics = None
 
         #inverse scale target if data is not preprocessed
         if data_conf['preprocessed'] == False:
@@ -193,19 +231,30 @@ def main():
             ytestrescaled = inverse_scale_target(test[target], scaler_y)  
         else:
             ytrainrescaled = train[target]
-            yvalrescaled = val[target]
-            ytestrescaled = test[target]
+        
+        if init_conf['model'].lower() in ['xgboost', 'prophet']:
+            ytrainpred = model.predict(train.drop(target, axis=1), type = 'train')
+            yvalpred = model.predict(val.drop(target, axis=1), type = 'val')
+            ytestpred = model.predict(test.drop(target, axis=1), type = 'test')
+        elif init_conf['model'].lower() == 'deepar':
+            ytrainpred = model.predict(type = 'train')
+            yvalpred = model.predict(type = 'val')
+            ytestpred = model.predict(type = 'test')
+
+            ytrainrescaled = ytrainrescaled[data_conf['n_hist']:]
+            yvalrescaled = yvalrescaled[data_conf['n_hist']:]
+            ytestrescaled = ytestrescaled[data_conf['n_hist']:]
 
         plot_regression_result(
             ytrainrescaled,
-            model.predict(train.drop(target, axis=1), type = 'train'),
+            ytrainpred,
             yvalrescaled,
-            model.predict(val.drop(target, axis=1), type = 'val'),
+            yvalpred,
             train_metrics,
             val_metrics,
             test_metrics,
             ytestrescaled,
-            model.predict(test.drop(target, axis=1), type = 'test'),
+            ytestpred,
             modelname = init_conf['model'],
             savepath = str(init_conf['model'])+ '_'+ target + '_regression.png'  
         )    

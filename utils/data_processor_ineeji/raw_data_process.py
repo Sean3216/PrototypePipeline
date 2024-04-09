@@ -444,6 +444,9 @@ class RawDataProcessor:
                 fw_steps=self.prepro_conf["fw_steps"],
             )
         else:
+            if self.prepro_conf['n_hist'] > 1 or self.prepro_conf['fw_steps'] > 0:
+                print(f'n_hist is {self.prepro_conf["n_hist"]} and fw_steps is {self.prepro_conf["fw_steps"]} but change3d is False.')
+                print('Returning the data as 2D without backward or forward steps.')
             X_3d, y_3d = X_scaled, y_scaled
 
         # Split the 3D data
