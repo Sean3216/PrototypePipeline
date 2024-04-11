@@ -233,11 +233,22 @@ class RawDataProcessor:
             df.columns.str.replace(" |\n", "_", regex=True)
             .str.replace("'", "_")
             .str.replace("__", "_")
+            .str.replace(".", "_")
         )
         if self.prepro_conf["is_classification"]:
             cleaned_df, label_mapping, _, num_classes = (
                 self.process_data_classification(df, target_column)
             )
+            #cleaning column names again if there are any new columns
+            target = cleaned_df[target_column]
+            cleaned_df = cleaned_df.drop(target_column, axis=1)
+            cleaned_df.columns = (
+                cleaned_df.columns.str.replace(" |\n", "_", regex=True)
+                .str.replace("'", "_")
+                .str.replace("__", "_")
+                .str.replace(".", "_")
+            )
+            cleaned_df[target_column] = target
             return cleaned_df, target_column, num_classes, label_mapping
         else:
             cleaned_df = self.remove_outliers_iqr(df, target_column)
@@ -253,6 +264,16 @@ class RawDataProcessor:
                     dummies = pd.get_dummies(cleaned_df[col], prefix=col)
                     cleaned_df = pd.concat([cleaned_df, dummies], axis=1)
                     cleaned_df = cleaned_df.drop(col, axis=1)
+            #cleaning column names again if there are any new columns
+            target = cleaned_df[target_column]
+            cleaned_df = cleaned_df.drop(target_column, axis=1)
+            cleaned_df.columns = (
+                cleaned_df.columns.str.replace(" |\n", "_", regex=True)
+                .str.replace("'", "_")
+                .str.replace("__", "_")
+                .str.replace(".", "")
+            )
+            cleaned_df[target_column] = target
             return cleaned_df, target_column, None, None
 
     def data_loader(self, cleaned_df, selected_features, target_column, num_classes, isreturndf = False, isreturndate = False, datecolname = []):
@@ -391,7 +412,7 @@ class RawDataProcessor:
 
         # Select features and target
         if returningdate:
-            if date_name is not []:
+            if date_name != []:
                 print(f'Returning date series as per configuration. Date column name: {date_name}')
                 dateseries = cleaned_df_subset[date_name]
                 cleaned_df_subset = cleaned_df_subset.drop(date_name, axis=1)
@@ -400,19 +421,21 @@ class RawDataProcessor:
                 print("Date cannot be returned.")
                 dateseries = None
         else:
-            if date_name is not []:
-                print("Date is not return as per configuration but 1) date columns exist or 2) date column name provided.")
-                print("Please recheck configuration file if needed. This run will not return date series.")
-            else:
-                print("Date is not return as per configuration.")
-            if type(date_name) == list:
-                for date in date_name:
-                    if date in cleaned_df_subset.columns:
-                        cleaned_df_subset = cleaned_df_subset.drop(date, axis=1)
-            else:
-                if date_name in cleaned_df_subset.columns:
+            print('Value of date_name:', date_name)
+            if date_name != []:
+                print("Date columns exist but was not provided in the configuration file.")
+                userfeedback = input("Do you want to return date series? (y/n): ")
+                if userfeedback.lower() == 'y':
+                    print("Returning date series because user asks it.")
+                    dateseries = cleaned_df_subset[date_name]
                     cleaned_df_subset = cleaned_df_subset.drop(date_name, axis=1)
-            dateseries = None #will not return date series anyway since returningdate is False
+                else:
+                    print("Date is not returned.")
+                    dateseries = None
+                    cleaned_df_subset = cleaned_df_subset.drop(date_name, axis=1)
+            else:
+                print("Date is not returned because date column name is not provided and cannot be found.")
+                dateseries = None
         X = cleaned_df_subset[selected_features].to_numpy()
         y = cleaned_df_subset[target_column].to_numpy()
 
@@ -459,18 +482,15 @@ class RawDataProcessor:
         x_test_3d, y_test_3d = X_3d[valid_end_idx:], y_3d[valid_end_idx:]
         
         #Split date series
-        if returningdate:
-            if dateseries is not None:
-                train_date = dateseries[:train_end_idx]
-                val_date = dateseries[train_end_idx:valid_end_idx]
-                test_date = dateseries[valid_end_idx:]
-                date={
-                    "train_date": train_date,
-                    "val_date": val_date,
-                    "test_date": test_date
-                }
-            else:
-                date = {'train_date': None, 'val_date': None, 'test_date': None}
+        if dateseries is not None:
+            train_date = dateseries[:train_end_idx]
+            val_date = dateseries[train_end_idx:valid_end_idx]
+            test_date = dateseries[valid_end_idx:]
+            date={
+                "train_date": train_date,
+                "val_date": val_date,
+                "test_date": test_date
+            }
         else:
             date = {'train_date': None, 'val_date': None, 'test_date': None}
 

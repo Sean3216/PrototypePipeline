@@ -30,7 +30,7 @@ class ProphetModel():
         if cuda:
             print('CUDA not yet available for Prophet. Using CPU...')
         self.scalertarget = scalertarget
-
+        
         self.train_date = train_date
         self.val_date = val_date
         self.test_date = test_date
@@ -44,8 +44,8 @@ class ProphetModel():
         #use train date for prophet
         if self.train_date is None:
             #create a dummy date column
-            self.train_date = pd.date_range(start = '1/1/2018', periods = len(X_train), freq = 'D')
-        X_train['ds'] = pd.to_datetime(self.train_date)
+            self.train_date = pd.date_range(start = '1/1/1945', periods = len(X_train), freq = 'D')
+        X_train['ds'] = self.train_date
         df = pd.concat([X_train, y_train], axis = 1)
         #convert all the columns name to string
         df.columns = [str(i) for i in df.columns]
@@ -70,16 +70,16 @@ class ProphetModel():
         print(f'Predicting on {type} data...')
         #use test date for prophet
         if type.lower() == 'train':
-            X_test['ds'] = pd.to_datetime(self.train_date)
+            X_test['ds'] = self.train_date
             df = X_test.copy()
         elif type.lower() == 'test':
             if self.test_date is None:
                 #create a dummy date column. Start date is the last date of val date
                 self.test_date = pd.date_range(start = self.val_date[-1], periods = len(X_test), freq = 'D')
-            X_test['ds'] = pd.to_datetime(self.test_date)
+            X_test['ds'] = self.test_date
             df = X_test.copy()
         elif type.lower() == 'val':
-            X_test['ds'] = pd.to_datetime(self.val_date)
+            X_test['ds'] = self.val_date
             df = X_test.copy()
         else:
             ValueError('Type of data must be either train, val or test')
@@ -101,8 +101,10 @@ class ProphetModel():
         #use train date for prophet
         if self.train_date is None:
             #create a dummy date column
-            self.train_date = pd.date_range(start = '1/1/2018', periods = len(X_train), freq = 'D')
-        X_train['ds'] = pd.to_datetime(self.train_date)
+            self.train_date = pd.date_range(start = '1/1/1945', periods = len(X_train), freq = 'D')
+        X_train['ds'] = self.train_date
+        print("Train date: ", X_train['ds'])
+        print('Number of missing in date: ', X_train['ds'].isnull().sum())
         df_train = pd.concat([X_train, y_train], axis = 1)
         #convert all the columns name to string
         df_train.columns = [str(i) for i in df_train.columns]
@@ -111,7 +113,9 @@ class ProphetModel():
         if self.val_date is None:
             #create a dummy date column. Start date is the last date of train date
             self.val_date = pd.date_range(start = self.train_date[-1], periods = len(X_val), freq = 'D')
-        X_val['ds'] = pd.to_datetime(self.val_date)
+        X_val['ds'] = self.val_date
+        print("Val date: ", X_val['ds'])
+        print('Number of missing in date: ', X_val['ds'].isnull().sum())
         df_val = X_val.copy()
         df_val.columns = [str(i) for i in df_val.columns]
         def objective(params):
@@ -139,7 +143,7 @@ class ProphetModel():
             objective, 
             hyperparameters, 
             algo=tpe.suggest, 
-            max_evals=3, 
+            max_evals=100, 
             trials=trials, 
             rstate = np.random.default_rng(42)
         )

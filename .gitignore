@@ -4,5 +4,5 @@ Data/*
 *.ipynb
 *.ipynb_checkpoints
 CloudAI Reference/*
-PLots/*
 lightning_logs/*
+*.png

@@ -15,7 +15,15 @@ from utils.data_processor_ineeji.test_config import (
 import torch
 
 def load_data(file_path):
-    return pd.read_csv(file_path)
+    #Try to read csv from the given file path
+    #if encounter error, change the encoding to another one
+    for encoding in ['utf-8', 'utf-16', 'latin1', 'ISO-8859-1', 'windows-1252']:
+        try:
+            data = pd.read_csv(file_path, encoding = encoding)
+            break
+        except UnicodeDecodeError:
+            continue
+    return data
 
 def dataloader_to_dataframe(dataloader):
     """

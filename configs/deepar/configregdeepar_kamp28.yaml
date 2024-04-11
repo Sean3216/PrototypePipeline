@@ -1,0 +1,50 @@
+# For any empty/absent information, use null. Do not use "" for empty fields.
+init_config:
+  tasktype: 'Regression'
+  model: 'DeepAR' # Available models = ['xgboost','prophet','DeepAR']
+  modelpath: 'DeepAR.json'
+
+data_config:
+  traindir: 'Data/kamp_28_regression/data.csv'
+  testdir: null #if there is no test data provided, use null
+  target: 'Power_Usage'
+  drop_cols: [] #leave empty list if there are no columns to be dropped
+  train_val_test_ratio: [0.7, 0.15]
+  fw_steps: 0 #how much shift y target to do forward forecasting.
+  n_hist: 1 #how many historical data to use. If 1 then only the current data is used. If 2, then t-1.
+  shuffle: False #Whether to shuffle train data or not. Do not shuffle if it's time series data!
+  apply_scaler: True #Whether to apply standard scaler or not
+  date_col: 'Datetime' #if there is no date column, use null
+  preprocessed: False
+  num_workers: 11 #not used for methods that are not NN based
+
+model_config:
+  cuda: True #if you want to use GPU, set this to True 
+  load_model: False #if you want to load a pre-trained model, set this to True
+  epochs: 1 #not used for methods that are not NN based
+  batch_size: 128 #not used for methods that are not NN based
+  hyperparameter_defaults: #if there are any hyperparameters that are to be used as default. If there are no hyperparameters to be set, it's okay to omit this section.
+    rnn_layers: 2
+    hidden_size: 20
+    dropout: 0.1
+    learning_rate: 0.01
+    weight_decay: 0.01
+  hyperparameter_tuning: #if not doing hyperparameter tuning, just don't fill this section. Uses Bayesian Optimization for tuning
+    #future work: allow another hyperparameter tuning method
+    #for DeepAR, currently only rnn_layers, hidden_size, dropout, learning_rate, and weight_decay that are tunable.
+    - name: 'rnn_layers'
+      type: 'choice'
+      values: [1, 2, 3, 4]
+    - name: 'hidden_size'
+      type: 'choice'
+      values: [10,20,30,40,50,60,70,80,90,100]
+    - name: 'dropout'
+      type: 'uniform'
+      bounds: [0.1,0.6]
+    - name: 'learning_rate'
+      type: 'uniform'
+      bounds: [0.0001, 0.1]
+    - name: 'weight_decay'
+      type: 'uniform'
+      bounds: [0.01, 0.1]
+

@@ -1,5 +1,5 @@
 # PrototypePipeline
-Pipeline to process data and select models from available options (currently XGBoost and Prophet) to do prediction/forecasting.
+Pipeline to process data and select models from available options (currently XGBoost, Prophet, and DeepAR) to do prediction/forecasting.
 
 ### Running the script
 The pipeline can be executed with terminal by first navigating to the directory of the scripts and run main.py like the following command:
@@ -7,7 +7,6 @@ The pipeline can be executed with terminal by first navigating to the directory 
 ```shell
 python main.py --config [config_dir]
 ```
-
 Notice that we need to input the directory of the configuration file. Examples of configuration files are located in configs folder.
 
 Current Limitation:
@@ -26,3 +25,4 @@ Current Limitation:
    * load_comp Dataset
    * load_full_data_purchase
 - Further bugs might still exist
+- list of data to be seen can be seen here (https://docs.google.com/spreadsheets/d/10M-cTBfBbb7LI1mjVSTNXcTgI2pmpvsY/edit#gid=1291101772)

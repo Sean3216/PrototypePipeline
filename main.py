@@ -42,7 +42,6 @@ rawtrain = load_data(data_conf['traindir'])
 if data_conf['testdir'] is not None:
     rawtest = load_data(data_conf['testdir'])
 
-
 def main():
     ###first force set cuda device
     if model_conf['cuda'] == True:
@@ -110,14 +109,46 @@ def main():
             train_date = train_date.reset_index(drop=True)
             print('Train date shape: ', train_date.shape)
             print('Train date indexes: ', train_date.index)
+            if isinstance(train_date, pd.Series):
+                train_date = pd.to_datetime(train_date, format='%d/%m/%Y')
+                print(type(train_date[0]))
+                print("Preview of train date: ", train_date.head(3))
+            elif isinstance(train_date, pd.DataFrame):
+                for col in train_date.columns:
+                    #convert the date column to have a 'd%/m%/Y%' format
+                    train_date[col] = pd.to_datetime(train_date[col], format='%d/%m/%Y')
+                    print(type(train_date[col][0]))
+                print("Preview of train date: ", train_date.head(3))
+
         if val_date is not None:
             val_date = val_date.reset_index(drop=True)
             print('Val date shape: ', val_date.shape)
             print('Val date indexes: ', val_date.index)
+            if isinstance(val_date, pd.Series):
+                val_date = pd.to_datetime(val_date, format='%d/%m/%Y')
+                print(type(val_date[0]))
+                print("Preview of train date: ", val_date.head(3))
+            elif isinstance(val_date, pd.DataFrame):
+                for col in val_date.columns:
+                    #convert the date column to have a 'd%/m%/Y%' format
+                    val_date[col] = pd.to_datetime(val_date[col], format='%d/%m/%Y')
+                    print(type(val_date[col][0]))
+                print("Preview of train date: ", val_date.head(3))
+
         if test_date is not None:
             test_date = test_date.reset_index(drop=True)
             print('Test date shape: ', test_date.shape)
             print('Test date indexes: ', test_date.index)
+            if isinstance(test_date, pd.Series):
+                test_date = pd.to_datetime(test_date, format='%d/%m/%Y')
+                print(type(test_date[0]))
+                print("Preview of train date: ", test_date.head(3))
+            elif isinstance(test_date, pd.DataFrame):
+                for col in test_date.columns:
+                    #convert the date column to have a 'd%/m%/Y%' format
+                    test_date[col] = pd.to_datetime(test_date[col], format='%d/%m/%Y')
+                    print(type(test_date[col][0]))
+                print("Preview of train date: ", test_date.head(3))
 
     ###Select and train using model
     ##XGBoost
@@ -147,10 +178,11 @@ def main():
     ##Prophet
     elif init_conf['model'].lower() == 'prophet':
         #check if date column is given
-        if data_conf['date_col'] is None:
-            print('Date column is needed for Prophet model! No date column found.')
+        if train_date is None or val_date is None or test_date is None:
+            print('Date column is needed for Prophet model! Either one of the data among train, val, and test does not have a date column.')
             print('Using dummy date column...')
-
+        
+        print('Train date: ', train_date)
         #initialize model
         model = ProphetModel(tasktype = init_conf['tasktype'],
                              params = model_conf['hyperparameter_defaults'],

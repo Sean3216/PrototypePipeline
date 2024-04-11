@@ -1,0 +1,41 @@
+# For any empty/absent information, use null. Do not use "" for empty fields.
+init_config:
+  tasktype: 'Regression'
+  model: 'prophet' # Available models = ['xgboost','prophet']
+  modelpath: 'prophet.json'
+
+data_config:
+  traindir: 'Data/kamp_49_regression/data.csv'
+  testdir: null #if there is no test data provided, use null
+  target: 'targetcolor'
+  drop_cols: [] #leave empty list if there are no columns to be dropped
+  train_val_test_ratio: [0.7, 0.15]
+  fw_steps: 0 #how much shift y target to do forward forecasting.
+  n_hist: 1 #how many historical data to use. If 1 then only the current data is used. If 2, then t-1.
+  shuffle: False #Whether to shuffle train data or not. Do not shuffle if it's time series data!
+  apply_scaler: True #Whether to apply standard scaler or not
+  date_col: null #if there is no date column, use null
+  preprocessed: False
+
+model_config:
+  cuda: True #if you want to use GPU, set this to True 
+  load_model: False #if you want to load a pre-trained model, set this to True
+  hyperparameter_defaults: #if there are any hyperparameters that are to be used as default. If there are no hyperparameters to be set, it's okay to omit this section.
+    changepoint_prior_scale: 0.05
+    seasonality_prior_scale: 10.0
+    seasonality_mode: 'additive'
+  hyperparameter_tuning: #if not doing hyperparameter tuning, just don't fill this section. Uses Bayesian Optimization for tuning
+    #future work: allow another hyperparameter tuning method
+    - name: 'changepoint_prior_scale'
+      type: 'uniform'
+      bounds: [0.0001, 10]
+    - name: 'seasonality_prior_scale'
+      type: 'uniform'
+      bounds: [0.001, 50]
+    - name: 'seasonality_mode'
+      type: 'choice'
+      values: ['additive','multiplicative']
+    - name: 'growth'
+      type: 'choice'
+      values: ['linear','flat']
+
