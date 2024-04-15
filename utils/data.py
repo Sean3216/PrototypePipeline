@@ -17,7 +17,7 @@ import torch
 def load_data(file_path):
     #Try to read csv from the given file path
     #if encounter error, change the encoding to another one
-    for encoding in ['utf-8', 'utf-16', 'latin1', 'ISO-8859-1', 'windows-1252']:
+    for encoding in ['utf-8', 'cp949', 'utf-16', 'latin1', 'ISO-8859-1', 'windows-1252']:
         try:
             data = pd.read_csv(file_path, encoding = encoding)
             break
