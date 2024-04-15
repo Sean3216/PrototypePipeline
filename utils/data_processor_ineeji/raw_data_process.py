@@ -39,7 +39,7 @@ class RawDataProcessor:
         self.x_scaling = get_scaler(self.prepro_conf["scaler_name"])
         self.y_scaling = get_scaler(self.prepro_conf["scaler_name"])
 
-    def run_preprocessing(self, df=None, return_df=False, datename = None, return_date = False): # modified by Yonathan (add return_df and return_date)
+    def run_preprocessing(self, df=None, return_df=False, datename = None, return_date = False, filename = 'sample_data.csv'): # modified by Yonathan (add return_df and return_date)
         if datename is None:
             checkdate = self.check_date_columns(df)
             if checkdate == []:
@@ -47,6 +47,22 @@ class RawDataProcessor:
                 datename = []
             else:
                 datename = checkdate.copy()
+        
+        #sampling 14000 rows for faster processing
+        if len(df) > 14000:
+            df = df.sample(14000, random_state=42)
+            print("Data is sampled for faster processing")
+            if datename is not None or datename != []:
+                #sort by date column
+                df = df.sort_values(by=datename, ascending=True)
+            else:
+                #sort by index
+                df = df.sort_index()
+            df.reset_index(drop=True, inplace=True)
+            df.to_csv('toshare/'+filename.split('/')[1]+'.csv',index = False)
+
+        print(f"Original data shape: {df.shape}")
+
         if df is None:
             # 1. load_data
             df, dataset_name = self.load_data(self.base_conf, self.dataset_conf)
@@ -423,16 +439,26 @@ class RawDataProcessor:
         else:
             print('Value of date_name:', date_name)
             if date_name != []:
-                print("Date columns exist but was not provided in the configuration file.")
-                userfeedback = input("Do you want to return date series? (y/n): ")
-                if userfeedback.lower() == 'y':
-                    print("Returning date series because user asks it.")
-                    dateseries = cleaned_df_subset[date_name]
-                    cleaned_df_subset = cleaned_df_subset.drop(date_name, axis=1)
-                else:
-                    print("Date is not returned.")
+                if type(date_name) == list and len(date_name) > 1:
+                    print("Date series is not return because multiple date columns are found.") #later fix this. This is a quick fix
                     dateseries = None
-                    cleaned_df_subset = cleaned_df_subset.drop(date_name, axis=1)
+                else:
+                    print("Date columns exist but was not provided in the configuration file.")
+                    userfeedback = input("Do you want to return date series? (y/n): ")
+                    if userfeedback.lower() == 'y':
+                        print("Returning date series because user asks it.")
+                        if date_name[0] in cleaned_df_subset.columns: #quick fix
+                            dateseries = cleaned_df_subset[date_name[0]]
+                            cleaned_df_subset = cleaned_df_subset.drop(date_name[0], axis=1)
+                        else:
+                            print("Date is not returned because date column name is not found.") #later fix this. This is a quick fix
+                            dateseries = None
+                    else:
+                        print("Date is not returned.")
+                        dateseries = None
+                        for date in date_name:
+                            if date in cleaned_df_subset.columns:
+                                cleaned_df_subset = cleaned_df_subset.drop(date, axis=1)
             else:
                 print("Date is not returned because date column name is not provided and cannot be found.")
                 dateseries = None

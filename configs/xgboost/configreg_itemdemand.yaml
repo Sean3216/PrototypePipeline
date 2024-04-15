@@ -5,11 +5,11 @@ init_config:
   modelpath: 'xgboostreg.json'
 
 data_config:
-  traindir: 'Data/kaggle_store_item_demand/processed/item_1.csv'
+  traindir: 'Data/kaggle_store_item_demand/Kaggle_Store_Item_Demand_10000_resampled.csv'
   testdir: null #if there is no test data provided, use null
-  target: 'sales_1d'
+  target: 'sales'
   drop_cols: [] #leave empty list if there are no columns to be dropped
-  train_val_test_ratio: [0.8, 0.1]
+  train_val_test_ratio: [0.7, 0.15]
   fw_steps: 0 #how much shift y target to do forward forecasting.
   n_hist: 1 #how many historical data to use. If 1 then only the current data is used. If 2, then t-1.
   shuffle: False #Whether to shuffle train data or not. Do not shuffle if it's time series data!

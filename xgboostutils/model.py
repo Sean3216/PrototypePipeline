@@ -96,7 +96,7 @@ class XGBoostModel():
             objective, 
             hyperparameters, 
             algo=tpe.suggest, 
-            max_evals=100, 
+            max_evals=10, 
             trials=trials, 
             rstate = np.random.default_rng(42)
         )

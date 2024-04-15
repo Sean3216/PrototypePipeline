@@ -11,7 +11,7 @@ def evaluate(y_true, y_pred, tasktype, verbose = 1):
     metrics = {}
     if tasktype == 1:
         metrics['accuracy'] = accuracy_score(y_true, y_pred)
-        metrics['f1'] = f1_score(y_true, y_pred, average='macro')
+        metrics['f1'] = f1_score(y_true, y_pred, average='weighted')
         metrics['precision'] = precision_score(y_true, y_pred, average = 'micro')
         metrics['recall'] = recall_score(y_true, y_pred, average = 'micro')
 

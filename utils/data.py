@@ -59,7 +59,8 @@ def preprocessing(
         apply_scaler = True, 
         returnasdf = False,
         date_col = None,
-        preprocessed = False):
+        preprocessed = False,
+        filepath = 'sample.csv'):
     """
     Future work: 
     - Add more preprocessing steps 
@@ -130,7 +131,8 @@ def preprocessing(
         ) = rawdataprocessor.run_preprocessing(rawdata, 
                                             datename= date_col, 
                                             return_df = returnasdf,
-                                            return_date = return_date)
+                                            return_date = return_date,
+                                            filename = filepath)
         if tasktype == 1:
             scaler_y = None
         return train_loader, val_loader, test_loader, scaler_y, train_date, val_date, test_date

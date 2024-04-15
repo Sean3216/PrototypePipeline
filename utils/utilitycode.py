@@ -151,10 +151,11 @@ def plot_regression_result(y_true_train, y_pred_train,
             plt.savefig(splitted)
         plt.show()
 
-        #plot the first 50 test data
+        #plot the last 50 test data
         plt.figure(figsize = (30, 10))
-        plt.plot(y_true_test[:50].values, label = 'True')
-        plt.plot(y_pred_test[:50].values, label = 'Predicted')
+        plt.plot(y_true_test[-50:].values, label = 'True')
+        plt.plot(y_pred_test[-50:].values, label = 'Predicted')
+        plt.xticks(np.arange(0, 50, step = 2))
         plt.legend()
         plt.title(
             f'{modelname} Prediction Result\n'+ testmetricshow
@@ -162,7 +163,7 @@ def plot_regression_result(y_true_train, y_pred_train,
         plt.xlabel('Index')
         plt.ylabel('Value')
         if savepath is not None:
-            splitted = savepath.split('.')[0] + '_test50' + savepath.split('.')[1]
+            splitted = savepath.split('.')[0] + '_testlast50' + savepath.split('.')[1]
             plt.savefig(splitted)
         plt.show()
     else:

@@ -5,17 +5,17 @@ init_config:
   modelpath: 'xgboostreg.json'
 
 data_config:
-  traindir: 'Data/kamp_27_regression/kamp_27_regression_수주량예측_T일예정수주량.csv'
+  traindir: 'Data/kamp_27_regression/kamp_27_regression_수주량예측_T일예정수주량_raw_data.csv'
   testdir: null #if there is no test data provided, use null
-  target: 'T일 예정 수주량'
-  drop_cols: ["Product_Number", "DoW", "Temperature", "Humidity", "Date", "Time"] #leave empty list if there are no columns to be dropped
+  target: 'target'
+  drop_cols: [] #leave empty list if there are no columns to be dropped
   train_val_test_ratio: [0.7, 0.15]
   fw_steps: 0 #how much shift y target to do forward forecasting.
   n_hist: 1 #how many historical data to use. If 1 then only the current data is used. If 2, then t-1.
   shuffle: False #Whether to shuffle train data or not. Do not shuffle if it's time series data!
   apply_scaler: True #Whether to apply standard scaler or not
   date_col: null #if there is no date column, use null
-  preprocessed: True
+  preprocessed: False
 
 model_config:
   cuda: True #if you want to use GPU, set this to True 

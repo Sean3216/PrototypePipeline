@@ -1,14 +1,14 @@
 # For any empty/absent information, use null. Do not use "" for empty fields.
 init_config:
   tasktype: 'Regression'
-  model: 'xgboost' # Available models = ['xgboost','prophet']
-  modelpath: 'xgboostreg.json'
+  model: 'prophet' # Available models = ['xgboost','prophet']
+  modelpath: 'prophet.json'
 
 data_config:
-  traindir: 'Data/kamp_22_regression/data.csv'
+  traindir: 'Data/kamp_50_regression/data.csv'
   testdir: null #if there is no test data provided, use null
-  target: 'y'
-  drop_cols: ['CP','AX'] #leave empty list if there are no columns to be dropped
+  target: 'targetcolor'
+  drop_cols: [] #leave empty list if there are no columns to be dropped
   train_val_test_ratio: [0.7, 0.15]
   fw_steps: 0 #how much shift y target to do forward forecasting.
   n_hist: 1 #how many historical data to use. If 1 then only the current data is used. If 2, then t-1.
@@ -21,31 +21,21 @@ model_config:
   cuda: True #if you want to use GPU, set this to True 
   load_model: False #if you want to load a pre-trained model, set this to True
   hyperparameter_defaults: #if there are any hyperparameters that are to be used as default. If there are no hyperparameters to be set, it's okay to omit this section.
-    n_estimators: 100
-    max_depth: 5
-    learning_rate: 0.1
-    random_state: 42
-    objective: 'reg:squarederror'
-    eval_metric: 'rmse'
-    device: 'cuda'
-    booster: 'gbtree'
+    changepoint_prior_scale: 0.05
+    seasonality_prior_scale: 10.0
+    seasonality_mode: 'additive'
   hyperparameter_tuning: #if not doing hyperparameter tuning, just don't fill this section. Uses Bayesian Optimization for tuning
     #future work: allow another hyperparameter tuning method
-    - name: 'n_estimators'
-      type: 'randint'
-      bounds: [100, 300]
-    - name: 'max_depth'
-      type: 'randint'
-      bounds: [3, 20]
-    - name: 'learning_rate'
+    - name: 'changepoint_prior_scale'
       type: 'uniform'
-      bounds: [0.001, 0.1]
-    - name: 'random_state'
+      bounds: [0.0001, 10]
+    - name: 'seasonality_prior_scale'
+      type: 'uniform'
+      bounds: [0.001, 50]
+    - name: 'seasonality_mode'
       type: 'choice'
-      values: [42]
-    - name: 'eval_metric'
+      values: ['additive','multiplicative']
+    - name: 'growth'
       type: 'choice'
-      values: ['rmse']
-    - name: 'booster'
-      type: 'choice'
-      values: ['gbtree', 'dart']
+      values: ['linear']
+

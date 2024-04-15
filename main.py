@@ -90,7 +90,8 @@ def main():
                       apply_scaler=data_conf['apply_scaler'],
                       returnasdf=return_as_df,
                       date_col=data_conf['date_col'],
-                      preprocessed = data_conf['preprocessed']                      
+                      preprocessed = data_conf['preprocessed'],
+                      filepath = data_conf['traindir']                      
     )
 
     print("Data loaded successfully!")
@@ -101,6 +102,7 @@ def main():
         val = val.reset_index(drop=True)
         test = test.reset_index(drop=True)
         print("Train shape: ", train.shape)
+        print("Val shape: ", val.shape)
         print("Test shape: ", test.shape)
         print('Data indexes: ', train.index, val.index, test.index)
 
@@ -127,13 +129,13 @@ def main():
             if isinstance(val_date, pd.Series):
                 val_date = pd.to_datetime(val_date, format='%d/%m/%Y')
                 print(type(val_date[0]))
-                print("Preview of train date: ", val_date.head(3))
+                print("Preview of val date: ", val_date.head(3))
             elif isinstance(val_date, pd.DataFrame):
                 for col in val_date.columns:
                     #convert the date column to have a 'd%/m%/Y%' format
                     val_date[col] = pd.to_datetime(val_date[col], format='%d/%m/%Y')
                     print(type(val_date[col][0]))
-                print("Preview of train date: ", val_date.head(3))
+                print("Preview of val date: ", val_date.head(3))
 
         if test_date is not None:
             test_date = test_date.reset_index(drop=True)
@@ -142,13 +144,13 @@ def main():
             if isinstance(test_date, pd.Series):
                 test_date = pd.to_datetime(test_date, format='%d/%m/%Y')
                 print(type(test_date[0]))
-                print("Preview of train date: ", test_date.head(3))
+                print("Preview of test date: ", test_date.head(3))
             elif isinstance(test_date, pd.DataFrame):
                 for col in test_date.columns:
                     #convert the date column to have a 'd%/m%/Y%' format
                     test_date[col] = pd.to_datetime(test_date[col], format='%d/%m/%Y')
                     print(type(test_date[col][0]))
-                print("Preview of train date: ", test_date.head(3))
+                print("Preview of test date: ", test_date.head(3))
 
     ###Select and train using model
     ##XGBoost
@@ -233,6 +235,7 @@ def main():
         else:
             metrics = predict_and_evaluate(model, train, target, scaler_y, type = 'train', NN = True)
         model.save_model()
+        model.cleardir()
     
     ###Plotting the regression result for regression case
     if init_conf['tasktype'] == 0:

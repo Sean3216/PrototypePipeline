@@ -9,10 +9,10 @@ data_config:
   testdir: null #if there is no test data provided, use null
   target: 'd3_come'
   drop_cols: ['user_id'] #leave empty list if there are no columns to be dropped
-  train_val_test_ratio: [0.8, 0.1]
+  train_val_test_ratio: [0.7, 0.15]
   fw_steps: 0 #how much shift y target to do forward forecasting.
   n_hist: 1 #how many historical data to use. If 1 then only the current data is used. If 2, then t-1.
-  shuffle: True #Whether to shuffle train data or not. Do not shuffle if it's time series data!
+  shuffle: False #Whether to shuffle train data or not. Do not shuffle if it's time series data!
   apply_scaler: True #Whether to apply standard scaler or not
   date_col: null #if there is no date column, use null
   preprocessed: False

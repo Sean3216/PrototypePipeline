@@ -37,5 +37,5 @@ model_config:
       values: ['additive','multiplicative']
     - name: 'growth'
       type: 'choice'
-      values: ['linear','flat']
+      values: ['linear']
 

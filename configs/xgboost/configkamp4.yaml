@@ -1,14 +1,14 @@
 # For any empty/absent information, use null. Do not use "" for empty fields.
 init_config:
-  tasktype: 'Regression'
+  tasktype: 'Classification'
   model: 'xgboost' # Available models = ['xgboost','prophet']
-  modelpath: 'xgboostreg.json'
+  modelpath: 'xgboost.json'
 
 data_config:
-  traindir: 'Data/kamp_22_regression/data.csv'
+  traindir: 'Data/kamp_04_classification/data.csv'
   testdir: null #if there is no test data provided, use null
-  target: 'y'
-  drop_cols: ['CP','AX'] #leave empty list if there are no columns to be dropped
+  target: 'PassOrFail'
+  drop_cols: [] #leave empty list if there are no columns to be dropped
   train_val_test_ratio: [0.7, 0.15]
   fw_steps: 0 #how much shift y target to do forward forecasting.
   n_hist: 1 #how many historical data to use. If 1 then only the current data is used. If 2, then t-1.
@@ -25,18 +25,18 @@ model_config:
     max_depth: 5
     learning_rate: 0.1
     random_state: 42
-    objective: 'reg:squarederror'
-    eval_metric: 'rmse'
-    device: 'cuda'
+    objective: 'binary:logistic'
+    eval_metric: 'auc'
     booster: 'gbtree'
   hyperparameter_tuning: #if not doing hyperparameter tuning, just don't fill this section. Uses Bayesian Optimization for tuning
     #future work: allow another hyperparameter tuning method
+    #some static options are intended so user can tweak them
     - name: 'n_estimators'
       type: 'randint'
       bounds: [100, 300]
     - name: 'max_depth'
       type: 'randint'
-      bounds: [3, 20]
+      bounds: [10, 20]
     - name: 'learning_rate'
       type: 'uniform'
       bounds: [0.001, 0.1]
@@ -45,7 +45,7 @@ model_config:
       values: [42]
     - name: 'eval_metric'
       type: 'choice'
-      values: ['rmse']
+      values: ['auc']
     - name: 'booster'
       type: 'choice'
       values: ['gbtree', 'dart']

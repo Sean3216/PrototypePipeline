@@ -123,7 +123,7 @@ class DeepARModel():
             return {'loss': rmse, 'status': 'ok'}
         trials = Trials()
         best_params = fmin(fn=objective, space = hyperparameters, algo = tpe.suggest, 
-                           max_evals = 5, trials=trials, rstate = np.random.default_rng(42))
+                           max_evals = 3, trials=trials, rstate = np.random.default_rng(42))
         print('Hyperparameter tuning completed!')
         self.params = space_eval(hyperparameters, best_params)
 

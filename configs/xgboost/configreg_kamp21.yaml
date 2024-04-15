@@ -5,10 +5,10 @@ init_config:
   modelpath: 'xgboostreg.json'
 
 data_config:
-  traindir: 'Data/kamp_22_regression/data.csv'
+  traindir: 'Data/kamp_21_regression/data.csv'
   testdir: null #if there is no test data provided, use null
-  target: 'y'
-  drop_cols: ['CP','AX'] #leave empty list if there are no columns to be dropped
+  target: 'power(T)'
+  drop_cols: [] #leave empty list if there are no columns to be dropped
   train_val_test_ratio: [0.7, 0.15]
   fw_steps: 0 #how much shift y target to do forward forecasting.
   n_hist: 1 #how many historical data to use. If 1 then only the current data is used. If 2, then t-1.

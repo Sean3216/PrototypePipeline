@@ -5,16 +5,16 @@ init_config:
   modelpath: 'prophet.json'
 
 data_config:
-  traindir: 'Data/maryland_retail_sales/Warehouse_and_Retail_Preproc_prophet.csv' #'Data/AI프렌즈 공공 데이터 활용 전력수요 및 SMP 예측 AI 경진대회/merged_data_rolling7d_lag30d.csv'
+  traindir: 'Data/maryland_retail_sales/Warehouse_and_Retail_Sales_20240321_10000_wine_data_new.csv' #'Data/AI프렌즈 공공 데이터 활용 전력수요 및 SMP 예측 AI 경진대회/merged_data_rolling7d_lag30d.csv'
   testdir: null #if there is no test data provided, use null
-  target: 'RETAIL_SALES_FUTURE'
+  target: 'RETAIL_SALES'
   drop_cols: [] #leave empty list if there are no columns to be dropped
-  train_val_test_ratio: [0.8, 0.1]
+  train_val_test_ratio: [0.7, 0.15]
   fw_steps: 0 #how much shift y target to do forward forecasting.
   n_hist: 1 #how many historical data to use. If 1 then only the current data is used. If 2, then t-1.
   shuffle: False #Whether to shuffle train data or not. Do not shuffle if it's time series data!
   apply_scaler: True #Whether to apply standard scaler or not
-  date_col: 'DATE' #if there is no date column, use null
+  date_col: null #if there is no date column, use null
   preprocessed: False
 
 model_config:
