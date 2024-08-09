@@ -61,6 +61,9 @@ class RawDataProcessor:
             df.reset_index(drop=True, inplace=True)
             df.to_csv('toshare/'+filename.split('/')[1]+'.csv',index = False)
 
+        #this is only for AI expo
+        self.filename = filename
+
         print(f"Original data shape: {df.shape}")
 
         if df is None:
@@ -244,7 +247,7 @@ class RawDataProcessor:
                 lambda x: x.interpolate(method="linear", limit_direction="both")
             )
 
-        df.reset_index(drop=True, inplace=True)
+        #df.reset_index(drop=True, inplace=True) #try to not reset index
         df.columns = (
             df.columns.str.replace(" |\n", "_", regex=True)
             .str.replace("'", "_")
@@ -412,7 +415,12 @@ class RawDataProcessor:
 
         if full_train_data_number > len(cleaned_df):
             full_train_data_number = len(cleaned_df)
+        #this is only for AI expo. Delete later
+        cleaned_df = cleaned_df.reset_index()
+        #################################################
         cleaned_df_subset = cleaned_df.iloc[:full_train_data_number]
+        #################################################
+
 
         # Xs_shape, ys_shape = calculate_3d_shape(
         #     full_train_data_number,
@@ -425,6 +433,26 @@ class RawDataProcessor:
         train_ratio, valid_ratio = self.prepro_conf["train_val_test_ratio"]
         train_end_idx = int(total_len * train_ratio)
         valid_end_idx = int(total_len * (train_ratio + valid_ratio))
+
+        #this is also for AI expo. Delete later
+        #print the train, val, test index
+        dummy = cleaned_df_subset.copy()
+        cleaned_df_subset.drop('index', axis=1, inplace=True)
+
+        traindummy = dummy.iloc[:train_end_idx]
+        valdummy = dummy.iloc[train_end_idx:valid_end_idx]
+        testdummy = dummy.iloc[valid_end_idx:]
+
+        traindummy = traindummy.set_index('index')
+        valdummy = valdummy.set_index('index')
+        testdummy = testdummy.set_index('index')
+        print("Train index:", traindummy.index.tolist())
+        print("Val index:", valdummy.index.tolist())
+        print("Test index:", testdummy.index.tolist())
+        #export to pickle
+        traindummy.to_pickle('toshare/'+self.filename.split('/')[1]+'_train_index.pkl')
+        valdummy.to_pickle('toshare/'+self.filename.split('/')[1]+'_val_index.pkl')
+        testdummy.to_pickle('toshare/'+self.filename.split('/')[1]+'_test_index.pkl')
 
         # Select features and target
         if returningdate:
@@ -462,6 +490,7 @@ class RawDataProcessor:
             else:
                 print("Date is not returned because date column name is not provided and cannot be found.")
                 dateseries = None
+
         X = cleaned_df_subset[selected_features].to_numpy()
         y = cleaned_df_subset[target_column].to_numpy()
 
@@ -594,6 +623,8 @@ class RawDataProcessor:
 
             print("Test Samples:")
             print_formatted_data(x_test_3d, y_test_3d)
+
+
         scaled_data = {
             "s_x_train": x_train_3d,
             "s_y_train": y_train_3d,

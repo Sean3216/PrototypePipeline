@@ -5,7 +5,7 @@ init_config:
   modelpath: 'DeepAR.json'
 
 data_config:
-  traindir: 'Data/maryland_retail_sales/Warehouse_and_Retail_Sales_20240321_10000_wine_data_new.csv'
+  traindir: 'Data/maryland_retail_sales/Warehouse_and_Retail_Sales_20240321_10000_wine_data.csv'
   testdir: null #if there is no test data provided, use null
   target: 'RETAIL_SALES'
   drop_cols: [] #leave empty list if there are no columns to be dropped

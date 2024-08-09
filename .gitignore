@@ -6,3 +6,4 @@ Data/*
 CloudAI Reference/*
 lightning_logs/*
 *.png
+utils/data_preprocessing_ineeji/*

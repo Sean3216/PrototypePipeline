@@ -5,7 +5,7 @@ init_config:
   modelpath: 'prophet.json'
 
 data_config:
-  traindir: 'Data/maryland_retail_sales/Warehouse_and_Retail_Sales_20240321_10000_wine_data_new.csv' #'Data/AI프렌즈 공공 데이터 활용 전력수요 및 SMP 예측 AI 경진대회/merged_data_rolling7d_lag30d.csv'
+  traindir: 'Data/maryland_retail_sales/Warehouse_and_Retail_Sales_20240321_10000_wine_data.csv' #'Data/AI프렌즈 공공 데이터 활용 전력수요 및 SMP 예측 AI 경진대회/merged_data_rolling7d_lag30d.csv'
   testdir: null #if there is no test data provided, use null
   target: 'RETAIL_SALES'
   drop_cols: [] #leave empty list if there are no columns to be dropped
