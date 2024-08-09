@@ -6,3 +6,4 @@ Data/*
 *.ipynb_checkpoints
 CloudAI Reference/*
 PLots/*
+utils/data_processor_ineeji/*
